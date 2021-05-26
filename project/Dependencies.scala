@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val circeV        = "0.14.0-M7"   //https://github.com/circe/circe/releases
+    val circeV        = "0.14.1"   //https://github.com/circe/circe/releases
     val catsV         = "2.6.1"        //https://github.com/typelevel/cats/releases
     val bouncyCastleV = "1.68"         //https://github.com/bcgit/bc-java/releases
     val sCryptV       = "1.4.0"        //https://github.com/wg/scrypt/releases
