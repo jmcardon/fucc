@@ -189,7 +189,7 @@ lazy val root = Project(id = "tsec", base = file("."))
     jwtMac,
     jwtSig,
     passwordHashers,
-    // http4s,
+    http4s,
     // microsite,
     oauth2,
     // bench,
@@ -330,7 +330,7 @@ lazy val oauth2 = Project(id = "tsec-oauth2", base = file("oauth2"))
   .settings(commonSettings)
   .dependsOn(common % "compile->compile;test->test")
   .settings(noPublishSettings)
-/*
+
 lazy val http4s = Project(id = "tsec-http4s", base = file("tsec-http4s"))
   .settings(commonSettings)
   .settings(jwtCommonLibs)
@@ -347,7 +347,7 @@ lazy val http4s = Project(id = "tsec-http4s", base = file("tsec-http4s"))
     jwtMac
   )
   .settings(releaseSettings)
-*/
+
 
 lazy val libsodium = Project(id = "tsec-libsodium", base = file("tsec-libsodium"))
   .settings(commonSettings)

@@ -6,11 +6,11 @@ import java.time.Clock
 import cats.data.{Kleisli, OptionT}
 import cats.effect.Sync
 import cats.syntax.all._
-import org.http4s.util.CaseInsensitiveString
 import org.http4s.{HttpRoutes, Request, Response, ResponseCookie, Status}
 import tsec.authentication.{cookieFromRequest, unliftedCookieFromRequest}
 import tsec.common._
 import tsec.mac.jca.{JCAMessageAuth, _}
+import org.typelevel.ci._
 
 /** Middleware to avoid Cross-site request forgery attacks.
   * More info on CSRF at: https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
@@ -101,10 +101,10 @@ final class TSecCSRF[F[_], A] private[tsec] (
   private[tsec] def checkCSRF(r: Request[F], service: HttpRoutes[F]): F[Response[F]] =
     (for {
       c1       <- cookieFromRequest[F](cookieName, r)
-      c2       <- OptionT.fromOption[F](r.headers.get(CaseInsensitiveString(headerName)).map(_.value))
+      c2       <- OptionT.fromOption[F](r.headers.get(CIString(headerName)).map(_.head.value))
       raw1     <- extractRaw(CSRFToken(c1.content))
       raw2     <- extractRaw(CSRFToken(c2))
-      res      <- if (isEqual(raw1, raw2)) service(r) else OptionT.none
+      res      <- if (isEqual(raw1, raw2)) service(r) else OptionT.none[F, Response[F]]
       newToken <- OptionT.liftF(signToken(raw1)) //Generate a new token to guard against BREACH.
     } yield res.addCookie(ResponseCookie(name = cookieName, content = newToken)))
       .getOrElse(Response[F](Status.Unauthorized))
@@ -123,7 +123,7 @@ final class TSecCSRF[F[_], A] private[tsec] (
 
   def validate(predicate: Request[F] => Boolean = _.method.isSafe): CSRFMiddleware[F] =
     req =>
-      Kleisli { r: Request[F] =>
+      Kleisli { (r: Request[F]) =>
         filter(predicate, r, req)
     }
 

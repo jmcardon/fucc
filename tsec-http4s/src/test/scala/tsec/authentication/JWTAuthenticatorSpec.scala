@@ -3,6 +3,7 @@ package tsec.authentication
 import java.time.Instant
 
 import cats.effect.IO
+import cats.syntax.all._
 import org.http4s.{Header, Request, RequestCookie, SameSite}
 import tsec.common.SecureRandomId
 import tsec.jws.mac.{JWSMacCV, JWTMac}
@@ -35,7 +36,7 @@ class JWTAuthenticatorSpec extends RequestAuthenticatorSpec {
       false,
       None,
       None,
-      SameSite.Lax,
+      SameSite.Lax.some,
       None,
       10.minutes,
       Some(10.minutes)
@@ -48,7 +49,7 @@ class JWTAuthenticatorSpec extends RequestAuthenticatorSpec {
       false,
       None,
       None,
-      SameSite.Lax,
+      SameSite.Lax.some,
       None,
       10.minutes,
       None
@@ -79,7 +80,7 @@ class JWTAuthenticatorSpec extends RequestAuthenticatorSpec {
 
   private[tsec] def embedInHeader[I, A: JWTMacAlgo](headerName: String)(r: Request[IO], a: AugmentedJWT[A, I])(
       implicit cv: JWSMacCV[IO, A]
-  ): Request[IO] = r.putHeaders(Header(headerName, JWTMac.toEncodedString(a.jwt)))
+  ): Request[IO] = r.putHeaders(headerName -> JWTMac.toEncodedString(a.jwt))
 
   private[tsec] def embedInCookie[I, A: JWTMacAlgo](
       settings: TSecCookieSettings

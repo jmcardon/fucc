@@ -10,7 +10,7 @@ import tsec.authorization._
 
 sealed abstract class SecuredRequestHandler[F[_], Identity, User, Auth](
     val authenticator: Authenticator[F, Identity, User, Auth]
-)(implicit F: MonadError[F, Throwable], ME: MonadError[Kleisli[OptionT[F, *], Request[F], *], Throwable]) {
+)(implicit F: MonadError[F, Throwable], ME: MonadError[({ type G[A] = Kleisli[({type T[A] = OptionT[F, A]})#T, Request[F], A]})#G, Throwable]) {
 
   private[this] val cachedUnauthorized: Response[F]                       = Response[F](Status.Unauthorized)
   private[this] val defaultNotAuthenticated: Request[F] => F[Response[F]] = _ => F.pure(cachedUnauthorized)

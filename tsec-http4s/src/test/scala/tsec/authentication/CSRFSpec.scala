@@ -88,7 +88,7 @@ class CSRFSpec extends TestSpec {
       (for {
         token <- OptionT.liftF(tsecCSRF.generateToken)
         res <- tsecCSRF.validate()(dummyService)(
-          dummyRequest.withHeaders(Headers.of(Header(tsecCSRF.headerName, token))).addCookie(tsecCSRF.cookieName, token)
+          dummyRequest.withHeaders(Headers(tsecCSRF.headerName -> token)).addCookie(tsecCSRF.cookieName, token)
         )
       } yield res).getOrElse(orElse).unsafeRunSync().status mustBe Status.Ok
     }
@@ -112,7 +112,7 @@ class CSRFSpec extends TestSpec {
       (for {
         token <- OptionT.liftF(tsecCSRF.generateToken)
         res <- tsecCSRF.validate()(dummyService)(
-          dummyRequest.withHeaders(Headers.of(Header(tsecCSRF.headerName, token)))
+          dummyRequest.withHeaders(Headers(tsecCSRF.headerName -> token))
         )
       } yield res).getOrElse(orElse).unsafeRunSync().status mustBe Status.Unauthorized
     }
@@ -122,7 +122,7 @@ class CSRFSpec extends TestSpec {
         token1 <- OptionT.liftF(tsecCSRF.generateToken)
         token2 <- OptionT.liftF(tsecCSRF.generateToken)
         res <- tsecCSRF.validate()(dummyService)(
-          dummyRequest.withHeaders(Headers.of(Header(tsecCSRF.headerName, token1))).addCookie(tsecCSRF.cookieName, token2)
+          dummyRequest.withHeaders(Headers(tsecCSRF.headerName -> token1)).addCookie(tsecCSRF.cookieName, token2)
         )
       } yield res).getOrElse(orElse).unsafeRunSync().status mustBe Status.Unauthorized
     }
@@ -132,7 +132,7 @@ class CSRFSpec extends TestSpec {
         token <- OptionT.liftF(tsecCSRF.generateToken)
         raw1  <- tsecCSRF.extractRaw(token)
         res <- tsecCSRF.validate()(dummyService)(
-          dummyRequest.withHeaders(Headers.of(Header(tsecCSRF.headerName, token))).addCookie(tsecCSRF.cookieName, token)
+          dummyRequest.withHeaders(Headers(tsecCSRF.headerName -> token)).addCookie(tsecCSRF.cookieName, token)
         )
         r    <- OptionT.fromOption[IO](res.cookies.find(_.name == tsecCSRF.cookieName).map(_.content))
         raw2 <- tsecCSRF.extractRaw(CSRFToken(r))
@@ -144,7 +144,7 @@ class CSRFSpec extends TestSpec {
         token1 <- OptionT.liftF(tsecCSRF.generateToken)
         token2 <- OptionT.liftF(tsecCSRF.generateToken)
         res <- tsecCSRF.validate()(dummyService)(
-          dummyRequest.withHeaders(Headers.of(Header(tsecCSRF.headerName, token1))).addCookie(tsecCSRF.cookieName, token2)
+          dummyRequest.withHeaders(Headers(tsecCSRF.headerName -> token1)).addCookie(tsecCSRF.cookieName, token2)
         )
       } yield res).getOrElse(Response.notFound).unsafeRunSync()
 

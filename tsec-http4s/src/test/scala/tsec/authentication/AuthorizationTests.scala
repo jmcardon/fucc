@@ -79,7 +79,7 @@ class AuthorizationTests extends TestSpec {
 
   behavior of "HierarchyAuth"
 
-  implicit val authInfo = new AuthorizationInfo[IO, AuthLevel, AuthLevel] {
+  implicit val authInfo: AuthorizationInfo[IO, AuthLevel, AuthLevel] = new AuthorizationInfo[IO, AuthLevel, AuthLevel] {
     def fetchInfo(u: AuthLevel): IO[AuthLevel] = IO.pure(u)
   }
 

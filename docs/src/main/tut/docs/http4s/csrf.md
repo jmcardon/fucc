@@ -54,7 +54,7 @@ The `apply` method on this new class is of type:
 
 ```scala
 type CSRFMiddleware[F[_]] =
-    Middleware[OptionT[F, *], Request[F], Response[F], Request[F], Response[F]]
+    Middleware[({type T[A] = OptionT[F, A]})#T, Request[F], Response[F], Request[F], Response[F]]
 ```
 
 Thus, you can use it as such:

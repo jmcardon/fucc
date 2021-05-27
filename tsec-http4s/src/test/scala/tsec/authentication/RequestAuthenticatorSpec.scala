@@ -4,7 +4,7 @@ import cats.data.OptionT
 import cats.effect.IO
 import cats.syntax.either._
 import io.circe.Json
-import io.circe.generic.auto.`package`._
+import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s._
 import org.http4s.circe._

@@ -6,7 +6,7 @@ import java.util.UUID
 import cats.data.OptionT
 import cats.effect.Sync
 import cats.syntax.all._
-import io.circe.generic.auto.`package`._
+import io.circe.generic.auto._
 import io.circe.parser.decode
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
@@ -70,7 +70,7 @@ final case class AuthEncryptedCookie[A, Id](
     httpOnly: Boolean = true,
     domain: Option[String] = None,
     path: Option[String] = None,
-    sameSite: SameSite = SameSite.Lax,
+    sameSite: Option[SameSite] = SameSite.Lax.some,
     extension: Option[String] = None
 ) {
 
@@ -90,13 +90,16 @@ final case class AuthEncryptedCookie[A, Id](
 
 object AuthEncryptedCookie {
 
-  implicit def auth[A, Id] = new AuthToken[AuthEncryptedCookie[A, Id]] {
+  implicit def auth[A, Id]: AuthToken[AuthEncryptedCookie[A, Id]] = new AuthToken[AuthEncryptedCookie[A, Id]] {
     def expiry(a: AuthEncryptedCookie[A, Id]): Instant = a.expiry
 
     def lastTouched(a: AuthEncryptedCookie[A, Id]): Option[Instant] = a.lastTouched
   }
 
   final case class Internal[Id](id: UUID, messageId: Id, expiry: Instant, lastTouched: Option[Instant])
+  object Internal {
+    implicit def encoder[Id: Encoder]: Encoder[Internal[Id]] = _root_.io.circe.generic.semiauto.deriveEncoder
+  }
 
   def build[A, Id](
       id: UUID,

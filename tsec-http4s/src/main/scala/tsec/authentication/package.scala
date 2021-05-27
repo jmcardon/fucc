@@ -53,11 +53,11 @@ package object authentication {
   }
 
   type TSecMiddleware[F[_], I, A] =
-    Middleware[OptionT[F, *], SecuredRequest[F, I, A], Response[F], Request[F], Response[F]]
+    Middleware[({type T[A] = OptionT[F, A]})#T, SecuredRequest[F, I, A], Response[F], Request[F], Response[F]]
 
   object TSecMiddleware {
     def apply[F[_]: Monad, I, Auth](
-        authedStuff: Kleisli[OptionT[F, *], Request[F], SecuredRequest[F, I, Auth]],
+        authedStuff: Kleisli[({type T[A] = OptionT[F, A]})#T, Request[F], SecuredRequest[F, I, Auth]],
         onNotAuthenticated: Request[F] => F[Response[F]]
     ): TSecMiddleware[F, I, Auth] =
       service => {
@@ -72,7 +72,7 @@ package object authentication {
       }
 
     def withFallthrough[F[_]: Monad, I, Auth](
-        authedStuff: Kleisli[OptionT[F, *], Request[F], SecuredRequest[F, I, Auth]],
+        authedStuff: Kleisli[({type T[A] = OptionT[F, A]})#T, Request[F], SecuredRequest[F, I, Auth]],
         onNotAuthenticated: Request[F] => F[Response[F]]
     ): TSecMiddleware[F, I, Auth] =
       service => {
@@ -89,7 +89,7 @@ package object authentication {
   // we'd expect. This is a workaround to ensure partial unification
   // is triggered.  See https://github.com/jmcardon/tsec/issues/88 for
   // more info.
-  type TSecAuthService[I, A, F[_]] = Kleisli[OptionT[F, *], SecuredRequest[F, I, A], Response[F]]
+  type TSecAuthService[I, A, F[_]] = Kleisli[({type T[A] = OptionT[F, A]})#T, SecuredRequest[F, I, A], Response[F]]
 
   object TSecAuthService {
 
@@ -163,10 +163,10 @@ package object authentication {
   }
 
   type UserAwareService[I, A, F[_]] =
-    Kleisli[OptionT[F, *], UserAwareRequest[F, I, A], Response[F]]
+    Kleisli[({type T[A] = OptionT[F, A]})#T, UserAwareRequest[F, I, A], Response[F]]
 
   type UserAwareMiddleware[F[_], I, A] =
-    Middleware[OptionT[F, *], UserAwareRequest[F, I, A], Response[F], Request[F], Response[F]]
+    Middleware[({type T[A] = OptionT[F, A]})#T, UserAwareRequest[F, I, A], Response[F], Request[F], Response[F]]
 
   object UserAwareService {
     def apply[I, A, F[_]](
@@ -190,10 +190,10 @@ package object authentication {
       )
 
     def extract[F[_]: Monad, I, Auth](
-        authedStuff: Kleisli[OptionT[F, *], Request[F], SecuredRequest[F, I, Auth]]
+        authedStuff: Kleisli[({type T[A] = OptionT[F, A]})#T, Request[F], SecuredRequest[F, I, Auth]]
     ): UserAwareMiddleware[F, I, Auth] =
       service => {
-        Kleisli { r: Request[F] =>
+        Kleisli { (r: Request[F]) =>
           OptionT.liftF(
             authedStuff
               .map(r => UserAwareRequest(r.request, Some((r.identity, r.authenticator))))
@@ -233,7 +233,7 @@ package object authentication {
       httpOnly: Boolean = true,
       domain: Option[String] = None,
       path: Option[String] = None,
-      sameSite: SameSite = SameSite.Lax,
+      sameSite: Option[SameSite] = SameSite.Lax.some,
       extension: Option[String] = None,
       expiryDuration: FiniteDuration,
       maxIdle: Option[FiniteDuration]
@@ -251,13 +251,13 @@ package object authentication {
   )
 
   def cookieFromRequest[F[_]: Monad](name: String, request: Request[F]): OptionT[F, RequestCookie] =
-    OptionT.fromOption[F](C.from(request.headers).flatMap(_.values.find(_.name === name)))
+    OptionT.fromOption[F](request.headers.get[org.http4s.headers.Cookie].flatMap(_.values.find(_.name === name)))
 
   def unliftedCookieFromRequest[F[_]](name: String, request: Request[F]): Option[RequestCookie] =
-    C.from(request.headers).flatMap(_.values.find(_.name === name))
+    request.headers.get[org.http4s.headers.Cookie].flatMap(_.values.find(_.name === name))
 
   def extractBearerToken[F[_]: Monad](request: Request[F]): Option[String] =
-    request.headers.get(Authorization).flatMap { t =>
+    request.headers.get[Authorization].flatMap { t =>
       t.credentials match {
         case Credentials.Token(scheme, token) if scheme == AuthScheme.Bearer =>
           Some(token)

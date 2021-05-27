@@ -107,7 +107,7 @@ abstract class AuthenticatorSpec extends TestSpec with BeforeAndAfterEach {
   }
 
   def AuthenticatorTest[A](title: String, authSpec: AuthSpecTester[A])(
-      implicit AE: ApplicativeError[OptionT[IO, *], Throwable]
+      implicit AE: ApplicativeError[({ type F[A] = OptionT[IO, A]})#F, Throwable]
   ) = {
     behavior of title
 
@@ -248,7 +248,7 @@ abstract class AuthenticatorSpec extends TestSpec with BeforeAndAfterEach {
   }
 
   def StatelessAuthenticatorTest[A](title: String, authSpec: StatelessSpecTester[A])(
-      implicit AE: ApplicativeError[OptionT[IO, *], Throwable]
+      implicit AE: ApplicativeError[({ type F[A] = OptionT[IO, A]})#F, Throwable]
   ) = {
     behavior of title
 

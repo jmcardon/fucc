@@ -24,6 +24,7 @@ package object csrf {
   }
 
   type CSRFMiddleware[F[_]] =
-    Middleware[OptionT[F, *], Request[F], Response[F], Request[F], Response[F]]
+    Middleware[({type T[A] = OptionT[F, A]})#T, Request[F], Response[F], Request[F], Response[F]]
+
 
 }

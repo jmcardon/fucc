@@ -1,7 +1,7 @@
 package tsec.authentication
 
 import cats.effect.IO
-import io.circe.generic.auto.`package`._
+import io.circe.generic.auto._
 import org.http4s.headers.Authorization
 import org.http4s.{AuthScheme, Credentials}
 import tsec.jws.mac.{JWSMacCV, JWTMac}
