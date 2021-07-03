@@ -12,7 +12,7 @@ object Dependencies {
     val http4sV       = "0.23.0-M1"   //https://github.com/http4s/http4s/releases
     val scalacheckV   = "1.15.4"       //https://github.com/typelevel/scalacheck/releases
     val commonsCodecV = "1.15"         //https://github.com/apache/commons-codec/releases
-    val fs2Version    = "3.0.3"        //https://github.com/functional-streams-for-scala/fs2/releases
+    val fs2Version    = "3.0.6"        //https://github.com/functional-streams-for-scala/fs2/releases
     val log4sV        = "1.9.0"        //https://github.com/Log4s/log4s
   }
 
